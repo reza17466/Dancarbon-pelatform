@@ -1,4 +1,4 @@
-"""Crowdsourced knowledge contribution page."""
+a"""Crowdsourced knowledge contribution page."""
 import streamlit as st
 import sys
 import os
@@ -75,7 +75,25 @@ def score_contribution(title, description):
             'reasons': ['keyword-based scoring']}
 
 
-def send_email_notification(title, description, ctype, source, email, score, status):
+def # Email to admin
+send_email_notification(title, description, ctype, source, email,
+                        result['score'], result['status'])
+
+# Email to user
+if email and '@' in email:
+    try:
+        from utils.email_to_user import (
+            send_accepted_email, send_review_email, send_rejected_email
+        )
+        if result['status'] == 'accepted':
+            send_accepted_email(email, title, description, result['score'])
+        elif result['status'] == 'review':
+            send_review_email(email, title, result['score'])
+        else:
+            reason = result['reasons'][0] if result.get('reasons') else None
+            send_rejected_email(email, title, result['score'], reason)
+    except Exception as e:
+        pass
     try:
         from utils.email_sender import notify_contribution
         notify_contribution(title, description, ctype, source, email, score, status)
@@ -106,7 +124,7 @@ with st.form("contribution_form"):
     ctype = st.selectbox(
         "Type of contribution",
         ["Experimental data", "Operational observation", "Scientific reference",
-         "Personal experience", "Question", "Suggestion"]
+         "Personal experienwce", "Question", "Suggestion"]
     )
     description = st.text_area(
         "Description *",
