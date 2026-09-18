@@ -1,10 +1,9 @@
-"""Interactive Predictor page."""
+"""Interactive Predictor page — simplified, no plotly dependency."""
 import streamlit as st
 import numpy as np
 import pandas as pd
 import os
 import pickle
-import plotly.graph_objects as go
 
 st.set_page_config(page_title="Predictor — DanCarbon Tech", page_icon="🎯")
 
@@ -98,28 +97,11 @@ with col_output:
     else:
         st.warning("⚠️ Lower confidence — edge of validated window")
 
-    # Mini comparison chart
-    st.markdown("### Context")
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=df['X_vv'], y=df['T_K'],
-        mode='markers',
-        name='Experimental data',
-        marker=dict(size=10, color=df['X_vv'], colorscale='Viridis',
-                    showscale=True)
-    ))
-    fig.add_trace(go.Scatter(
-        x=[pred], y=[T],
-        mode='markers',
-        name='Your prediction',
-        marker=dict(size=20, color='red', symbol='star')
-    ))
-    fig.update_layout(
-        xaxis_title="CO₂ solubility (v/v)",
-        yaxis_title="Temperature (K)",
-        height=400
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    # Simple table comparison (instead of plotly)
+    st.markdown("### Compare with experimental data")
+    df_display = df[['run', 'P_bar', 'T_K', 'TiO2_wt', 'X_vv']].copy()
+    df_display.columns = ['Run', 'P (bar)', 'T (K)', 'TiO₂ (wt%)', 'X (v/v)']
+    st.dataframe(df_display, use_container_width=True, height=250)
 
 # Download CSV
 st.markdown("---")
