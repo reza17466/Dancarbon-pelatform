@@ -1,4 +1,4 @@
-ص"""Interactive Predictor — pure numpy."""
+"""Interactive Predictor — pure numpy."""
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -34,7 +34,8 @@ def train_rsm(df):
 
 def predict(model, P, T, C):
     A = build_design_matrix([P], [T], [C])
-    return float((A @ model['coef']).item())
+    result = A @ model['coef']
+    return float(np.ravel(result)[0])
 
 
 @st.cache_resource
