@@ -81,12 +81,12 @@ if submitted:
 
         # Show result
         if result['status'] == 'accepted':
-            st.success(
-                f"✅ **Accepted!** AI score: {result['score']}/100. "
-                f"This contribution will be integrated into our shared model."
-            )
-            st.balloons()
-            st.rerun()
+    st.success(
+        f"✅ **Accepted!** AI score: {result['score']}/100. "
+        f"This contribution will be integrated into our shared model."
+    )
+    st.balloons()
+    st.rerun()
         elif result['status'] == 'review':
             st.info(
                 f"⏳ **Under review.** AI score: {result['score']}/100. "
