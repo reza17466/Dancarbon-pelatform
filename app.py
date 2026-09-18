@@ -300,4 +300,4 @@ st.caption(
     f"DanCarbon Tech Platform — MVP v0.2 | "
     f"© {datetime.now().year} DanCarbon Tech ApS | "
     f"Contact: rezachash12@gmail.com"
-)س
+)
