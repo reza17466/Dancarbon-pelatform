@@ -2,8 +2,8 @@
 DanCarbon Tech — Main Application
 Data-driven CO₂ separation for biogas upgrading.
 
-This version auto-trains the baseline model on first load,
-so no manual setup is needed on Streamlit Cloud.
+This version auto-trains the baseline model on first load using pickle,
+so no manual setup or joblib dependency is required.
 """
 import streamlit as st
 import pandas as pd
@@ -13,7 +13,7 @@ import pickle
 from datetime import datetime
 
 # ------------------------------------------------------------------
-# Page configuration (MUST be first Streamlit command)
+# Page configuration (MUST be the first Streamlit command)
 # ------------------------------------------------------------------
 st.set_page_config(
     page_title="DanCarbon Tech — CO₂ Separation Platform",
@@ -23,7 +23,7 @@ st.set_page_config(
 )
 
 # ------------------------------------------------------------------
-# Auto-train model on first load
+# Auto-train model on first load (uses pickle, no joblib)
 # ------------------------------------------------------------------
 @st.cache_resource
 def ensure_model():
@@ -51,10 +51,13 @@ def ensure_model():
         ])
         model.fit(X, y)
 
-        # Save
-        joblib.dump(model, model_path)
+        # Save with pickle
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
 
-    return joblib.load(model_path)
+    # Load with pickle
+    with open(model_path, 'rb') as f:
+        return pickle.load(f)
 
 
 try:
@@ -123,13 +126,6 @@ st.markdown("""
         font-size: 0.85rem;
         margin-right: 0.5rem;
         margin-bottom: 0.4rem;
-    }
-    .stat-box {
-        background: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border: 1px solid #DEEAF6;
-        text-align: center;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -230,7 +226,7 @@ with col3:
 st.markdown("---")
 
 # ------------------------------------------------------------------
-# LIVE DEMO — quick predictor embedded in home page
+# LIVE DEMO — embedded predictor
 # ------------------------------------------------------------------
 if MODEL_READY:
     st.markdown("## Try It Now — Live Demo")
