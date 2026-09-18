@@ -1,4 +1,4 @@
-"""Crowdsourced knowledge contribution page."""
+a"""Crowdsourced knowledge contribution page."""
 import streamlit as st
 import sys
 import os
@@ -170,6 +170,13 @@ if submitted:
 
         # Show result
         if result['status'] == 'accepted':
+            # ارسال ایمیل
+try:
+    from utils.email_sender import notify_contribution
+    notify_contribution(title, description, ctype, source, email,
+                        result['score'], result['status'])
+except Exception:
+    pass
             st.success(
                 f"✅ **Accepted!** AI score: {result['score']}/100. "
                 f"This contribution will be integrated into our shared model."
