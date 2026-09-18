@@ -160,14 +160,14 @@ def send_rejected_email(to_email, title, score, reason=None):
         <li>No reference or source</li>
         <li>Content not directly related to CO₂ separation</li>
     </ul>
-    <p><b>How to submit a better contribution:</b></p>
+    <p><b>How to submit a better contribution?</b></p>
     <div style="background: #FFF4CE; padding: 15px; border-radius: 6px;
                 border-left: 4px solid #FFC107;">
-        <p style="margin: 0 0 10px 0;"><b>✅ Good example:</b></p>
+        <p style="margin: 0 0 10px 0;"><b>✅ Suggested structure:</b></p>
         <p style="margin: 0; font-size: 14px;">
-        "CO₂ solubility in 70 wt% MEG at 297 K and 17.7 bar was
-        measured as 19.107 v/v. Reference: MSc thesis, Mahshahr
-        University, 2016."
+        <b>Title:</b> CO₂ solubility in [solvent] at [temperature] and [pressure]<br><br>
+        <b>Description:</b> Report the measured value with its unit.
+        Include the reference (journal, thesis, or DOI).
         </p>
     </div>
     <p style="margin-top: 20px;">
