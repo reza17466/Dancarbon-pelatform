@@ -42,14 +42,32 @@ if submitted:
     if not name or not email or not service:
         st.error("Please fill in all required fields (*)")
     else:
-        # For MVP: store in database (or send email via API)
-        st.success(
-            f"✅ **Thank you, {name}!** "
-            f"We've received your request and will respond within 24 hours."
-        )
-        st.info(
-            "📌 For immediate assistance, contact us directly:\n\n"
-            "📧 rezachash12@gmail.com\n"
-            "🔗 [LinkedIn](https://www.linkedin.com/in/reza-chash-9735ab141)"
-        )
-        # TODO: Add email notification (SendGrid, Resend, etc.)
+        # ذخیره در فایل محلی
+        import csv, os
+        from datetime import datetime
+        os.makedirs('data', exist_ok=True)
+        path = 'data/quote_requests.csv'
+        file_exists = os.path.exists(path)
+        with open(path, 'a', newline='') as f:
+            writer = csv.writer(f)
+            if not file_exists:
+                writer.writerow(['timestamp', 'name', 'company', 'email',
+                                 'phone', 'country', 'service', 'description', 'budget'])
+            service_str = ", ".join(service) if isinstance(service, list) else service
+            writer.writerow([datetime.now().isoformat(), name, company, email,
+                             phone, country, service_str, description, budget])
+
+        # ارسال ایمیل
+        try:
+            from utils.email_sender import notify_quote_request
+            service_str = ", ".join(service) if isinstance(service, list) else service
+            sent = notify_quote_request(name, company, email, phone, country,
+                                         service_str, description, budget)
+            if sent:
+                st.success(f"✅ Thank you, {name}! We received your request and sent you a confirmation email.")
+            else:
+                st.success(f"✅ Thank you, {name}! Your request has been saved.")
+        except Exception as e:
+            st.success(f"✅ Thank you, {name}! Your request has been saved.")
+
+        st.info(f"📧 We'll respond to {email} within 24 hours.")a
