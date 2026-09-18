@@ -1,4 +1,4 @@
-a"""Crowdsourced knowledge contribution page."""
+"""Crowdsourced knowledge contribution page."""
 import streamlit as st
 import sys
 import os
