@@ -70,4 +70,4 @@ if submitted:
         except Exception as e:
             st.success(f"✅ Thank you, {name}! Your request has been saved.")
 
-        st.info(f"📧 We'll respond to {email} within 24 hours.")a
+        st.info(f"📧 We'll respond to {email} within 24 hours.")
