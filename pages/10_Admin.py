@@ -1,4 +1,4 @@
-"""Complete Admin Dashboard with full control panel."""
+"""Complete Admin Dashboard — password protected."""
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -10,6 +10,44 @@ from datetime import datetime
 st.set_page_config(page_title="Admin — DanCarbon Tech",
                    page_icon="📊", layout="wide")
 
+
+# ==================================================================
+# PASSWORD PROTECTION
+# ==================================================================
+def check_admin_password():
+    """Check admin password from secrets."""
+    try:
+        expected = st.secrets.get("admin", {}).get("password", "admin2026")
+    except Exception:
+        expected = "admin2026"
+
+    if "admin_authed" not in st.session_state:
+        st.session_state.admin_authed = False
+
+    if not st.session_state.admin_authed:
+        st.title("🔒 Admin Access")
+        st.markdown("This area is restricted. Please enter the admin password.")
+
+        with st.form("admin_login"):
+            pwd = st.text_input("Admin Password", type="password")
+            submit = st.form_submit_button("Login", type="primary")
+
+            if submit:
+                if pwd == expected:
+                    st.session_state.admin_authed = True
+                    st.rerun()
+                else:
+                    st.error("❌ Wrong password. Access denied.")
+        return False
+    return True
+
+
+if not check_admin_password():
+    st.stop()
+
+# ==================================================================
+# ADMIN CONTENT
+# ==================================================================
 st.title("📊 Admin Dashboard")
 st.caption("Full control panel — contributions, requests, users, model.")
 
@@ -454,3 +492,8 @@ with tabs[6]:
             if os.path.exists(QUOTE_FILE):
                 os.remove(QUOTE_FILE)
             st.success("Cleared"); st.rerun()
+
+    st.markdown("---")
+    if st.button("🚪 Logout"):
+        st.session_state.admin_authed = False
+        st.rerun()
