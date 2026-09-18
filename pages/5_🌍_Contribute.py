@@ -1,9 +1,7 @@
 """Crowdsourced knowledge contribution page."""
 import streamlit as st
-import sys
 import os
 import json
-import csv
 from datetime import datetime
 
 st.set_page_config(page_title="Contribute — DanCarbon Tech", page_icon="🌍")
@@ -33,7 +31,7 @@ def save_contrib(entry):
     contribs = load_contribs()
     contribs.append(entry)
     with open(CONTRIB_FILE, 'w') as f:
-        json.dump(contribs, f, indent=2)
+        json.dump(contribs, f, indent=2, ensure_ascii=False)
 
 
 def score_contribution(title, description):
@@ -75,28 +73,28 @@ def score_contribution(title, description):
             'reasons': ['keyword-based scoring']}
 
 
-def # Email to admin
-send_email_notification(title, description, ctype, source, email,
-                        result['score'], result['status'])
+def send_email_to_admin(title, description, ctype, source, email, score, status):
+    try:
+        from utils.email_sender import notify_contribution
+        notify_contribution(title, description, ctype, source, email, score, status)
+    except Exception:
+        pass
 
-# Email to user
-if email and '@' in email:
+
+def send_email_to_user(email, title, description, score, status, reasons):
+    if not email or '@' not in email:
+        return
     try:
         from utils.email_to_user import (
             send_accepted_email, send_review_email, send_rejected_email
         )
-        if result['status'] == 'accepted':
-            send_accepted_email(email, title, description, result['score'])
-        elif result['status'] == 'review':
-            send_review_email(email, title, result['score'])
+        if status == 'accepted':
+            send_accepted_email(email, title, description, score)
+        elif status == 'review':
+            send_review_email(email, title, score)
         else:
-            reason = result['reasons'][0] if result.get('reasons') else None
-            send_rejected_email(email, title, result['score'], reason)
-    except Exception as e:
-        pass
-    try:
-        from utils.email_sender import notify_contribution
-        notify_contribution(title, description, ctype, source, email, score, status)
+            reason = reasons[0] if reasons else None
+            send_rejected_email(email, title, score, reason)
     except Exception:
         pass
 
@@ -124,7 +122,7 @@ with st.form("contribution_form"):
     ctype = st.selectbox(
         "Type of contribution",
         ["Experimental data", "Operational observation", "Scientific reference",
-         "Personal experienwce", "Question", "Suggestion"]
+         "Personal experience", "Question", "Suggestion"]
     )
     description = st.text_area(
         "Description *",
@@ -162,25 +160,38 @@ if submitted:
         }
         save_contrib(entry)
 
-        send_email_notification(title, description, ctype, source, email,
-                                result['score'], result['status'])
+        # Email to admin
+        send_email_to_admin(title, description, ctype, source, email,
+                            result['score'], result['status'])
 
+        # Email to user
+        send_email_to_user(email, title, description,
+                           result['score'], result['status'],
+                           result.get('reasons', []))
+
+        # Show result
         if result['status'] == 'accepted':
             st.success(
                 f"✅ **Accepted!** AI score: {result['score']}/100. "
                 f"This contribution will be integrated into our shared model."
             )
+            if email:
+                st.info(f"📧 A confirmation email was sent to {email}")
             st.balloons()
         elif result['status'] == 'review':
             st.info(
                 f"⏳ **Under review.** AI score: {result['score']}/100. "
                 f"A team member will review your contribution within 48 hours."
             )
+            if email:
+                st.info(f"📧 A notification email was sent to {email}")
         else:
             st.warning(
                 f"⚠️ **Not accepted.** AI score: {result['score']}/100. "
                 f"Reason: {result['reasons'][0]}"
             )
+            if email:
+                st.info(f"📧 An email with feedback was sent to {email}")
 
 st.markdown("---")
 st.markdown("### Recent Public Contributions")
@@ -194,5 +205,5 @@ else:
             st.write(c['description'])
             st.caption(
                 f"Type: {c['contribution_type']} | "
-                f"Submitted: {c.get('timestamp', '—')}"
+                f"Submitted: {c.get('timestamp', '—')[:19]}"
             )
