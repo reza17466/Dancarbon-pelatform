@@ -86,6 +86,7 @@ if submitted:
                 f"This contribution will be integrated into our shared model."
             )
             st.balloons()
+            st.rerun()
         elif result['status'] == 'review':
             st.info(
                 f"⏳ **Under review.** AI score: {result['score']}/100. "
