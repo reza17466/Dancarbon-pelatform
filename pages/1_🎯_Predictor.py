@@ -1,4 +1,4 @@
-"""Interactive Predictor — pure numpy."""
+"""Interactive Predictor — no experimental data shown."""
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -16,10 +16,8 @@ def build_design_matrix(P, T, C):
     T = np.asarray(T).ravel().astype(float)
     C = np.asarray(C).ravel().astype(float)
     return np.column_stack([
-        np.ones_like(P),
-        P, T, C,
-        P**2, T**2, C**2,
-        P*T, P*C, T*C
+        np.ones_like(P), P, T, C,
+        P**2, T**2, C**2, P*T, P*C, T*C
     ])
 
 
@@ -54,14 +52,8 @@ def load_model():
         return pickle.load(f)
 
 
-@st.cache_data
-def load_data():
-    return pd.read_csv('data/box_behnken.csv')
-
-
 try:
     model = load_model()
-    df = load_data()
 except Exception as e:
     st.error(f"Setup error: {e}")
     st.stop()
@@ -78,35 +70,23 @@ with col_input:
 with col_output:
     pred = predict(model, P, T, C)
 
-    df_temp = df.copy()
-    df_temp['distance'] = np.sqrt(
-        ((df_temp['P_bar'] - P) / 15) ** 2 +
-        ((df_temp['T_K'] - T) / 14) ** 2 +
-        ((df_temp['TiO2_wt'] - C) / 0.1) ** 2
-    )
-    nearest = df_temp.loc[df_temp['distance'].idxmin()]
-
     st.markdown("### Prediction")
-    col_a, col_b = st.columns(2)
-    col_a.metric("Predicted CO₂ solubility", f"{pred:.3f} v/v")
-    col_b.metric("Nearest experimental", f"{nearest['X_vv']:.3f} v/v",
-                 delta=f"Δ {pred - nearest['X_vv']:+.3f}")
+    st.metric("Predicted CO₂ solubility", f"{pred:.3f} v/v")
 
-    st.markdown("### Confidence")
-    d = nearest['distance']
-    if d < 0.1:
-        st.success(f"✅ High confidence — near run #{int(nearest['run'])}")
-    elif d < 0.3:
-        st.info("ℹ️ Moderate confidence — within design space")
+    st.markdown("### Model Quality")
+    r2 = model.get('r2', 0)
+    if r2 >= 0.9:
+        st.success(f"✅ R² = {r2:.4f} — High confidence")
+    elif r2 >= 0.8:
+        st.info(f"ℹ️ R² = {r2:.4f} — Moderate confidence")
     else:
-        st.warning("⚠️ Lower confidence — edge of validated window")
+        st.warning(f"⚠️ R² = {r2:.4f} — Lower confidence")
 
-    st.markdown(f"**Model quality:** R² = {model['r2']:.4f}")
-
-    st.markdown("### Experimental dataset")
-    df_display = df[['run', 'P_bar', 'T_K', 'TiO2_wt', 'X_vv']].copy()
-    df_display.columns = ['Run', 'P (bar)', 'T (K)', 'TiO₂ (wt%)', 'X (v/v)']
-    st.dataframe(df_display, use_container_width=True, height=250)
+    st.caption(
+        "Predictions are based on a validated response-surface model. "
+        "The underlying experimental dataset is proprietary and not "
+        "displayed publicly."
+    )
 
 st.markdown("---")
 result_df = pd.DataFrame([{
