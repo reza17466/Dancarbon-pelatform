@@ -1,6 +1,5 @@
 """ROI Calculator — estimate savings and CO₂ reduction."""
 import streamlit as st
-import plotly.graph_objects as go
 import pandas as pd
 
 st.set_page_config(page_title="ROI Calculator — DanCarbon Tech",
@@ -64,7 +63,6 @@ st.markdown("---")
 # ==================================================================
 # CALCULATIONS
 # ==================================================================
-# Optimization percentages
 opt_map = {
     "Conservative": {"energy": 0.05, "co2": 0.03},
     "Moderate": {"energy": 0.10, "co2": 0.05},
@@ -72,26 +70,19 @@ opt_map = {
 }
 opt = opt_map[optimization_level]
 
-# Annual figures
-annual_gas = gas_flow * operating_hours  # Nm³/year
-current_annual_energy = annual_gas * current_energy  # kWh/year
-current_annual_cost = current_annual_energy * energy_price  # DKK/year
+annual_gas = gas_flow * operating_hours
+current_annual_energy = annual_gas * current_energy
+current_annual_cost = current_annual_energy * energy_price
 
-# Savings
 energy_saved_kwh = current_annual_energy * opt["energy"]
 energy_saved_dkk = energy_saved_kwh * energy_price
 
-# CO₂ impact
-# Assume ~1.5 kg CO₂ per Nm³ biogas processed
 co2_processed_tonnes = annual_gas * 1.5 / 1000
 co2_reduced_tonnes = co2_processed_tonnes * opt["co2"]
 
-# DanCarbon platform cost (SaaS Professional)
-platform_cost = 30000  # DKK/year
+platform_cost = 30000
 net_savings = energy_saved_dkk - platform_cost
 roi_months = (platform_cost / energy_saved_dkk * 12) if energy_saved_dkk > 0 else 0
-
-# 5-year projection
 five_year_savings = net_savings * 5
 
 # ==================================================================
@@ -135,37 +126,23 @@ with col_r4:
 st.markdown("---")
 
 # ==================================================================
-# 5-YEAR PROJECTION CHART
+# 5-YEAR PROJECTION
 # ==================================================================
 st.markdown("### 3. Five-Year Savings Projection")
 
 years = list(range(1, 6))
 cumulative = [net_savings * y for y in years]
-annual = [net_savings] * 5
 
-fig = go.Figure()
-fig.add_trace(go.Bar(
-    x=years, y=annual,
-    name='Annual savings',
-    marker_color='#2E74B5',
-))
-fig.add_trace(go.Scatter(
-    x=years, y=cumulative,
-    name='Cumulative savings',
-    line=dict(color='#1B365D', width=3),
-    mode='lines+markers'
-))
-fig.update_layout(
-    xaxis_title="Year",
-    yaxis_title="Savings (DKK)",
-    height=400,
-    legend=dict(orientation='h', y=1.1),
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
-)
-fig.update_xaxes(showgrid=False)
-fig.update_yaxes(showgrid=True, gridcolor='#E5E7EB')
-st.plotly_chart(fig, use_container_width=True)
+chart_data = pd.DataFrame({
+    'Year': years,
+    'Annual Savings (DKK)': [net_savings] * 5,
+    'Cumulative Savings (DKK)': cumulative,
+}).set_index('Year')
+
+st.bar_chart(chart_data[['Annual Savings (DKK)']])
+
+st.markdown("**Cumulative savings over 5 years:**")
+st.line_chart(chart_data[['Cumulative Savings (DKK)']])
 
 # ==================================================================
 # SUMMARY TABLE
@@ -237,8 +214,6 @@ st.markdown("""
 
 Our **Process Audit (Gold)** service validates these estimates against
 your actual plant data and provides a detailed optimization roadmap.
-
-[📩 Request a Free Consultation](pages/9_📩_Request_Quote.py)
 """)
 
 st.caption(
