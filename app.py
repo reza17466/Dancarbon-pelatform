@@ -1,4 +1,4 @@
-"""DanCarbon Tech — Main Application with professional styling."""
+"""DanCarbon Tech — Main Application."""
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -26,7 +26,7 @@ except Exception:
 
 
 # ==================================================================
-# AUTO-TRAIN MODEL (pure numpy, no sklearn)
+# AUTO-TRAIN MODEL
 # ==================================================================
 @st.cache_resource
 def ensure_model():
@@ -39,13 +39,12 @@ def ensure_model():
         try:
             with open(model_path, 'rb') as f:
                 loaded = pickle.load(f)
-            # Verify it's the correct format (dict with 'coef')
             if isinstance(loaded, dict) and 'coef' in loaded:
                 model = loaded
         except Exception:
             model = None
 
-    # If no valid model, train a fresh one
+    # Train if no valid model
     if model is None:
         os.makedirs('models', exist_ok=True)
         df = pd.read_csv(data_path)
@@ -169,7 +168,7 @@ else:
 st.markdown("---")
 
 # ==================================================================
-# LIVE DEMO (no experimental data shown)
+# LIVE DEMO
 # ==================================================================
 if MODEL_READY:
     st.markdown("## Try It Now — Live Demo")
@@ -178,22 +177,24 @@ if MODEL_READY:
     col_in, col_out = st.columns([1, 2])
 
     with col_in:
-        demo_T = st.slider("Temperature (K)", 290.0, 304.0, 297.0, 0.5,
-                           key="home_T")
-        demo_P = st.slider("Pressure (bar)", 10.0, 25.0, 17.7, 0.1,
-                           key="home_P")
-        demo_C = st.slider("TiO₂ (wt%)", 0.0, 0.1, 0.05, 0.01, key="home_C")
+        demo_T = st.slider(
+            "Temperature (K)", 290.0, 304.0, 297.0, 0.5, key="home_T"
+        )
+        demo_P = st.slider(
+            "Pressure (bar)", 10.0, 25.0, 17.7, 0.1, key="home_P"
+        )
+        demo_C = st.slider(
+            "TiO₂ (wt%)", 0.0, 0.1, 0.05, 0.01, key="home_C"
+        )
 
     with col_out:
-    A = np.array([[
-        1.0, demo_P, demo_T, demo_C,
-        demo_P**2, demo_T**2, demo_C**2,
-        demo_P*demo_T, demo_P*demo_C, demo_T*demo_C
-    ]])
-    demo_pred = float((A @ model['coef'])[0])
-    st.metric("Predicted CO₂ solubility", f"{demo_pred:.3f} v/v")
-    st.caption(f"Model R² = {model['r2']:.4f} on design points")
-
+        A_demo = np.array([[
+            1.0,
+            demo_P, demo_T, demo_C,
+            demo_P ** 2, demo_T ** 2, demo_C ** 2,
+            demo_P * demo_T, demo_P * demo_C, demo_T * demo_C
+        ]])
+        demo_pred = float((A_demo @ model['coef'])[0])
         st.metric("Predicted CO₂ solubility", f"{demo_pred:.3f} v/v")
         st.caption(f"Model R² = {model['r2']:.4f} on design points")
 
@@ -239,7 +240,10 @@ if STYLES_OK:
     """, unsafe_allow_html=True)
 else:
     st.markdown("## Ready to get started?")
-    st.write("Whether you're a student or a plant operator, we have a plan for you.")
+    st.write(
+        "Whether you're a student or a plant operator, "
+        "we have a plan for you."
+    )
 
 col1, col2, col3 = st.columns([1, 1, 2])
 with col1:
