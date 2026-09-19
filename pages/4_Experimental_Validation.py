@@ -4,8 +4,6 @@ import pandas as pd
 import numpy as np
 import os
 import pickle
-import plotly.graph_objects as go
-import plotly.express as px
 
 st.set_page_config(page_title="Validation — DanCarbon Tech",
                    page_icon="🔬", layout="wide")
@@ -18,9 +16,7 @@ st.markdown(
 
 st.markdown("---")
 
-# ==================================================================
-# LOAD MODEL AND DATA
-# ==================================================================
+
 @st.cache_resource
 def load_model():
     model_path = 'models/rsm_model.pkl'
@@ -43,10 +39,10 @@ except Exception as e:
     st.stop()
 
 if model is None:
-    st.warning("Model not found. Please run the app first.")
+    st.warning("Model not found. Please open the app first.")
     st.stop()
 
-# Build design matrix
+
 def build_design(P, T, C):
     P = np.asarray(P).ravel().astype(float)
     T = np.asarray(T).ravel().astype(float)
@@ -56,14 +52,16 @@ def build_design(P, T, C):
         P**2, T**2, C**2, P*T, P*C, T*C
     ])
 
+
 A = build_design(df['P_bar'], df['T_K'], df['TiO2_wt'])
 y_exp = df['X_vv'].values.astype(float)
 y_pred = A @ model['coef']
-
-# Compute residuals
 residuals = y_exp - y_pred
 r2 = model.get('r2', 0)
 
+# ==================================================================
+# SUMMARY
+# ==================================================================
 st.markdown("### 1. Model Performance Summary")
 
 col1, col2, col3, col4 = st.columns(4)
@@ -74,66 +72,41 @@ col4.metric("Max residual", f"{np.max(np.abs(residuals)):.4f} v/v")
 
 st.caption(
     "Model: second-order response surface fitted with least-squares "
-    "regression. R² is computed on the 17 Box-Behnken design points."
+    "regression on the 17 Box-Behnken design points."
 )
 
 st.markdown("---")
 
 # ==================================================================
-# PARITY PLOT
+# PARITY PLOT (using dataframe chart)
 # ==================================================================
 st.markdown("### 2. Predicted vs Experimental")
 
-col_a, col_b = st.columns([2, 1])
+parity_df = pd.DataFrame({
+    'Run': df['run'].values,
+    'Experimental (v/v)': y_exp,
+    'Predicted (v/v)': y_pred,
+    'Residual': residuals,
+}).set_index('Run')
 
-with col_a:
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=y_exp, y=y_pred,
-        mode='markers',
-        marker=dict(size=12, color='#2E74B5',
-                    line=dict(width=1, color='white')),
-        name='Design points',
-        text=[f"Run #{r}" for r in df['run']],
-        hovertemplate=(
-            "<b>Run %{text}</b><br>"
-            "Experimental: %{x:.3f}<br>"
-            "Predicted: %{y:.3f}<extra></extra>"
-        )
-    ))
-    # Diagonal line
-    lo = min(min(y_exp), min(y_pred)) * 0.95
-    hi = max(max(y_exp), max(y_pred)) * 1.05
-    fig.add_trace(go.Scatter(
-        x=[lo, hi], y=[lo, hi],
-        mode='lines',
-        line=dict(dash='dash', color='#9CA3AF'),
-        name='Perfect prediction'
-    ))
-    fig.update_layout(
-        xaxis_title="Experimental solubility (v/v)",
-        yaxis_title="Predicted solubility (v/v)",
-        height=500,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-    )
-    fig.update_xaxes(showgrid=True, gridcolor='#E5E7EB')
-    fig.update_yaxes(showgrid=True, gridcolor='#E5E7EB')
-    st.plotly_chart(fig, use_container_width=True)
+st.dataframe(
+    parity_df.style.format({
+        'Experimental (v/v)': '{:.3f}',
+        'Predicted (v/v)': '{:.3f}',
+        'Residual': '{:+.4f}',
+    }),
+    use_container_width=True,
+)
 
-with col_b:
-    st.markdown("#### Interpretation")
-    st.markdown(f"""
-    - **Points on diagonal:** perfect prediction
-    - **Spread around diagonal:** model error
-    - **R² = {r2:.4f}:** model explains {r2*100:.1f}% of variance
-    - **RMSE = {np.sqrt(np.mean(residuals**2)):.4f} v/v:** typical error
-    """)
-    st.info(
-        "The model is designed to **interpolate** within the design "
-        "space, not extrapolate. Predictions outside 290–304 K, "
-        "10–25 bar, or 0–0.1 wt% TiO₂ are not supported."
-    )
+st.markdown("**Comparison of experimental vs predicted:**")
+st.line_chart(parity_df[['Experimental (v/v)', 'Predicted (v/v)']])
+
+st.info(
+    f"R² = {r2:.4f} — the model explains {r2*100:.1f}% of the "
+    "variance in the design points. It is designed to **interpolate** "
+    "within the design space (290–304 K, 10–25 bar, 0–0.1 wt% TiO₂), "
+    "not to extrapolate."
+)
 
 st.markdown("---")
 
@@ -142,45 +115,8 @@ st.markdown("---")
 # ==================================================================
 st.markdown("### 3. Residual Analysis")
 
-col_c, col_d = st.columns(2)
-
-with col_c:
-    st.markdown("#### Residuals vs Predicted")
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=y_pred, y=residuals,
-        mode='markers',
-        marker=dict(size=10, color='#ED7D31'),
-        name='Residuals'
-    ))
-    fig.add_hline(y=0, line_dash="dash", line_color='#6B7280')
-    fig.update_layout(
-        xaxis_title="Predicted solubility (v/v)",
-        yaxis_title="Residual (exp − pred)",
-        height=400,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-    )
-    fig.update_yaxes(showgrid=True, gridcolor='#E5E7EB')
-    st.plotly_chart(fig, use_container_width=True)
-
-with col_d:
-    st.markdown("#### Residual Distribution")
-    fig = go.Figure()
-    fig.add_trace(go.Histogram(
-        x=residuals,
-        nbinsx=8,
-        marker_color='#1B365D'
-    ))
-    fig.update_layout(
-        xaxis_title="Residual value",
-        yaxis_title="Count",
-        height=400,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        showlegend=False,
-    )
-    st.plotly_chart(fig, use_container_width=True)
+st.markdown("**Residuals for each design point:**")
+st.bar_chart(parity_df[['Residual']])
 
 st.info(
     "Residuals should be randomly distributed around zero. "
@@ -213,18 +149,17 @@ st.markdown("---")
 st.markdown("### 5. Literature Comparison")
 
 st.markdown("""
-Our experimental data is consistent with published solubility studies
-of CO₂ in glycol-based solvents:
+Our experimental data is consistent with published solubility studies:
 
-| Source | Solvent | T range | P range | X range | Method |
-|--------|---------|---------|---------|---------|--------|
-| **This work** | 70 wt% MEG + TiO₂ | 290–304 K | 10–25 bar | 5.8–34.0 v/v | Pressure decay |
-| Tang et al. (2011) | Pure MEG | 288–318 K | 5–60 bar | 3–20 v/v | Static cell |
-| Wang et al. (2010) | AMP + Sulfolane | 313–373 K | ≤ 193 kPa | — | Equilibrium cell |
-| Bohloul et al. (2014) | NMP | 293–333 K | 0.84–1.47 MPa | — | Static method |
+| Source | Solvent | T range | P range | Method |
+|--------|---------|---------|---------|--------|
+| **This work** | 70 wt% MEG + TiO₂ | 290–304 K | 10–25 bar | Pressure decay |
+| Tang et al. (2011) | Pure MEG | 288–318 K | 5–60 bar | Static cell |
+| Wang et al. (2010) | AMP + Sulfolane | 313–373 K | ≤ 193 kPa | Equilibrium cell |
+| Bohloul et al. (2014) | NMP | 293–333 K | 0.84–1.47 MPa | Static method |
 
 **Key observation:** Our values fall within the same order of magnitude
-as Tang et al. for pure MEG at comparable conditions, but our
+as Tang et al. for pure MEG at comparable conditions, but the
 nanoparticle-enhanced system extends the achievable solubility at low
 temperature and high pressure.
 """)
