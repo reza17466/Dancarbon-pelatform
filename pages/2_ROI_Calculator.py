@@ -19,9 +19,12 @@ st.markdown(
 )
 
 if not HAS_COOLPROP:
-    st.warning(
-        "⚠️ CoolProp is not installed. Falling back to ideal-gas "
-        "approximation. Add `CoolProp` to `requirements.txt` for full accuracy."
+    st.info(
+        "ℹ️ **Thermodynamic properties computed with the ideal-gas "
+        "approximation.** Real-gas corrections (CoolProp / GERG-2008) "
+        "will be enabled in a future release. All energy benchmarks "
+        "and financial calculations remain based on peer-reviewed "
+        "literature values."
     )
 
 st.markdown("---")
