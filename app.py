@@ -190,7 +190,7 @@ if MODEL_READY:
             demo_P**2, demo_T**2, demo_C**2,
             demo_P*demo_T, demo_P*demo_C, demo_T*demo_C
         ]])
-        demo_pred = float((A @ model['coef']).ravel()[0])
+        demo_pred = float(np.ravel(A @ model['coef'])[0])
 
         st.metric("Predicted CO₂ solubility", f"{demo_pred:.3f} v/v")
         st.caption(f"Model R² = {model['r2']:.4f} on design points")
