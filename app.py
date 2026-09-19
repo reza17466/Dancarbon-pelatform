@@ -33,7 +33,20 @@ def ensure_model():
     model_path = 'models/rsm_model.pkl'
     data_path = 'data/box_behnken.csv'
 
-    if not os.path.exists(model_path):
+    # Try loading existing model
+    model = None
+    if os.path.exists(model_path):
+        try:
+            with open(model_path, 'rb') as f:
+                loaded = pickle.load(f)
+            # Verify it's the correct format (dict with 'coef')
+            if isinstance(loaded, dict) and 'coef' in loaded:
+                model = loaded
+        except Exception:
+            model = None
+
+    # If no valid model, train a fresh one
+    if model is None:
         os.makedirs('models', exist_ok=True)
         df = pd.read_csv(data_path)
         P = df['P_bar'].values.astype(float)
@@ -53,8 +66,7 @@ def ensure_model():
         with open(model_path, 'wb') as f:
             pickle.dump(model, f)
 
-    with open(model_path, 'rb') as f:
-        return pickle.load(f)
+    return model
 
 
 try:
