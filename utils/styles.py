@@ -6,18 +6,22 @@ def apply_global_styles():
     """Apply professional styling across the entire app."""
     st.markdown("""
     <style>
+        /* Hide Streamlit default menu */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         
+        /* Reduce top padding */
         .block-container {
             padding-top: 2rem;
             padding-bottom: 3rem;
         }
         
+        /* TYPOGRAPHY */
         h1 { color: #1B365D !important; font-weight: 800 !important; }
         h2 { color: #1B365D !important; font-weight: 700 !important; margin-top: 2rem !important; }
         h3 { color: #2E74B5 !important; font-weight: 600 !important; }
         
+        /* HERO */
         .hero-container { padding: 3rem 0 2rem 0; }
         .hero-title {
             font-size: 3rem; font-weight: 800; color: #1B365D;
@@ -28,6 +32,7 @@ def apply_global_styles():
             margin-bottom: 1.5rem; line-height: 1.6;
         }
         
+        /* BADGES */
         .badge {
             display: inline-block; background: #DEEAF6; color: #1B365D;
             padding: 0.4rem 0.9rem; border-radius: 999px;
@@ -36,6 +41,7 @@ def apply_global_styles():
             border: 1px solid #B4C7E7;
         }
         
+        /* FEATURE CARDS */
         .feature-card {
             background: #FFFFFF; padding: 1.5rem; border-radius: 12px;
             border: 1px solid #E5E7EB;
@@ -56,6 +62,7 @@ def apply_global_styles():
             margin: 0; line-height: 1.5;
         }
         
+        /* STAT CARDS */
         .stat-card {
             background: linear-gradient(135deg, #F5F7FA 0%, #DEEAF6 100%);
             padding: 1.25rem; border-radius: 10px;
@@ -69,6 +76,7 @@ def apply_global_styles():
             font-size: 0.85rem; color: #6B7280; margin-top: 0.25rem;
         }
         
+        /* CTA BOX */
         .cta-box {
             background: linear-gradient(135deg, #1B365D 0%, #2E74B5 100%);
             color: white; padding: 2.5rem; border-radius: 16px;
@@ -78,10 +86,7 @@ def apply_global_styles():
         .cta-box h2 { color: white !important; margin-top: 0 !important; }
         .cta-box p { color: #DEEAF6 !important; font-size: 1.05rem; }
         
-        section[data-testid="stSidebar"] {
-            background: #F5F7FA; border-right: 1px solid #E5E7EB;
-        }
-        
+        /* FOOTER */
         .custom-footer {
             text-align: center; color: #9CA3AF;
             font-size: 0.85rem; padding: 2rem 0 1rem 0;
@@ -89,6 +94,7 @@ def apply_global_styles():
         }
         .custom-footer a { color: #2E74B5; text-decoration: none; }
         
+        /* METRICS */
         [data-testid="stMetricValue"] { color: #1B365D; font-weight: 700; }
         [data-testid="stMetricLabel"] { color: #6B7280; font-size: 0.85rem; }
         
