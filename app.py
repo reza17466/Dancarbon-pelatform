@@ -14,12 +14,14 @@ st.set_page_config(
 )
 
 # ==================================================================
-# SIDEBAR LOGO
+# LOGO (appears in all pages at top of sidebar)
 # ==================================================================
-import os
 if os.path.exists("assets/logo.png"):
-    st.sidebar.image("assets/logo.png", use_container_width=True)
-    st.sidebar.markdown("---")
+    st.logo(
+        "assets/logo.png",
+        size="large",
+        icon_image="assets/logo.png"
+    )
 
 # Apply global styling
 try:
