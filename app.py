@@ -13,6 +13,14 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ==================================================================
+# SIDEBAR LOGO
+# ==================================================================
+import os
+if os.path.exists("assets/logo.png"):
+    st.sidebar.image("assets/logo.png", use_container_width=True)
+    st.sidebar.markdown("---")
+
 # Apply global styling
 try:
     from utils.styles import (
