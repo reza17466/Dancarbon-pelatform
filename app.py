@@ -40,41 +40,26 @@ except Exception:
 # ==================================================================
 @st.cache_resource
 def ensure_model():
-    model_path = 'models/rsm_model.pkl'
-    data_path = 'data/box_behnken.csv'
+    # Exact coefficients from Design-Expert (R² = 0.9969)
+    # Order of terms in A matrix:
+    # [1, P, T, C, P^2, T^2, C^2, P*T, P*C, T*C]
+    coef = np.array([
+        -756.75895,  # Intercept
+        -0.642721,   # P
+        5.43370,     # T
+        494.50100,   # C (TiO2 wt%)
+        -0.015591,   # P^2
+        -0.009776,   # T^2
+        374.20000,   # C^2
+        0.007495,    # P*T
+        -6.38000,    # P*C
+        -1.56857     # T*C
+    ])
+    
+    r2 = 0.9969
+    n_points = 17
 
-    # Try loading existing model
-    model = None
-    if os.path.exists(model_path):
-        try:
-            with open(model_path, 'rb') as f:
-                loaded = pickle.load(f)
-            if isinstance(loaded, dict) and 'coef' in loaded:
-                model = loaded
-        except Exception:
-            model = None
-
-    # Train if no valid model
-    if model is None:
-        os.makedirs('models', exist_ok=True)
-        df = pd.read_csv(data_path)
-        P = df['P_bar'].values.astype(float)
-        T = df['T_K'].values.astype(float)
-        C = df['TiO2_wt'].values.astype(float)
-        y = df['X_vv'].values.astype(float)
-
-        A = np.column_stack([
-            np.ones_like(P), P, T, C,
-            P**2, T**2, C**2, P*T, P*C, T*C
-        ])
-        coef, *_ = np.linalg.lstsq(A, y, rcond=None)
-        y_pred = A @ coef
-        r2 = 1 - np.sum((y - y_pred) ** 2) / np.sum((y - y.mean()) ** 2)
-
-        model = {'coef': coef, 'r2': float(r2), 'n_points': len(df)}
-        with open(model_path, 'wb') as f:
-            pickle.dump(model, f)
-
+    model = {'coef': coef, 'r2': float(r2), 'n_points': n_points}
     return model
 
 
