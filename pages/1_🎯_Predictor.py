@@ -21,15 +21,6 @@ def build_design_matrix(P, T, C):
     ])
 
 
-def train_rsm(df):
-    A = build_design_matrix(df['P_bar'], df['T_K'], df['TiO2_wt'])
-    y = df['X_vv'].values.astype(float)
-    coef, *_ = np.linalg.lstsq(A, y, rcond=None)
-    y_pred = A @ coef
-    r2 = 1 - np.sum((y - y_pred) ** 2) / np.sum((y - y.mean()) ** 2)
-    return {'coef': coef, 'r2': r2}
-
-
 def predict(model, P, T, C):
     A = build_design_matrix([P], [T], [C])
     result = A @ model['coef']
@@ -38,18 +29,25 @@ def predict(model, P, T, C):
 
 @st.cache_resource
 def load_model():
-    model_path = 'models/rsm_model.pkl'
-    data_path = 'data/box_behnken.csv'
+    coef = np.array([
+        -756.75895,  # Intercept
+        -0.642721,   # P
+        5.43370,     # T
+        494.50100,   # C (TiO2 wt%)
+        -0.015591,   # P^2
+        -0.009776,   # T^2
+        374.20000,   # C^2
+        0.007495,    # P*T
+        -6.38000,    # P*C
+        -1.56857     # T*C
+    ])
+    return {
+        'coef': coef,
+        'r2': 0.9969,
+        'n_points': 17
+    }
 
-    if not os.path.exists(model_path):
-        os.makedirs('models', exist_ok=True)
-        df = pd.read_csv(data_path)
-        model = train_rsm(df)
-        with open(model_path, 'wb') as f:
-            pickle.dump(model, f)
 
-    with open(model_path, 'rb') as f:
-        return pickle.load(f)
 
 
 try:
