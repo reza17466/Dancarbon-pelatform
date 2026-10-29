@@ -38,7 +38,7 @@ def score_contribution(title, description):
     text = (title + " " + description).lower()
     keywords = [
         'co2', 'carbon', 'methane', 'ch4', 'biogas', 'biomethane',
-        'meg', 'glycol', 'solvent', 'absorption', 'solubility',
+        'PEG', 'glycol', 'solvent', 'absorption', 'solubility',
         'tio2', 'nanoparticle', 'nanofluid', 'amine', 'pressure',
         'temperature', 'bar', 'kelvin', 'separation', 'upgrading',
         'ccs', 'capture', 'gas', 'equilibrium', 'modeling'
@@ -117,7 +117,7 @@ st.markdown("### Submit Your Contribution")
 with st.form("contribution_form"):
     title = st.text_input(
         "Title *",
-        placeholder="e.g., CO₂ solubility in MEG at 310 K and 20 bar"
+        placeholder="e.g., CO₂ solubility in PEG at 310 K and 20 bar"
     )
     ctype = st.selectbox(
         "Type of contribution",
