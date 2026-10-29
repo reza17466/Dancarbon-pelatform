@@ -10,7 +10,7 @@ import re
 # Domain keywords
 RELEVANT_KEYWORDS = [
     'co2', 'carbon dioxide', 'methane', 'ch4', 'biogas', 'biomethane',
-    'meg', 'monoethylene', 'glycol', 'solvent', 'absorption', 'solubility',
+    'peg', 'monoethylene', 'glycol', 'solvent', 'absorption', 'solubility',
     'tio2', 'nanoparticle', 'nanofluid', 'amine', 'mdea', 'dea', 'mea',
     'pressure', 'temperature', 'bar', 'kelvin', 'separation', 'upgrading',
     'ccs', 'ccu', 'capture', 'storage', 'gas', 'liquid', 'equilibrium',
