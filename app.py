@@ -1,4 +1,4 @@
-app.py : """DanCarbon Tech — Main Application."""
+"""DanCarbon Tech — Main Application."""
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -12,16 +12,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-# ==================================================================
-# LOGO (appears in all pages at top of sidebar)
-# ==================================================================
-if os.path.exists("assets/logo.png"):
-    st.logo(
-        "assets/logo.png",
-        size="large",
-        icon_image="assets/logo.png"
-    )
 
 # Apply global styling
 try:
