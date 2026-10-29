@@ -99,11 +99,11 @@ def model_exists(pid):
 with st.sidebar:
     st.header("Create New Project")
     with st.form("new_project"):
-        name = st.text_input("Project name", placeholder="e.g., CO₂ / MEG / Al₂O₃")
+        name = st.text_input("Project name", placeholder="e.g., CO₂ / PEG / Al₂O₃")
         gas = st.selectbox("Gas", ["CO₂", "CH₄", "H₂S", "H₂", "N₂", "Other"])
         solvent = st.selectbox(
             "Solvent",
-            ["MEG", "Amine (MEA)", "Amine (MDEA)", "Water", "Methanol", "Other"]
+            ["PEG", "Amine (MEA)", "Amine (MDEA)", "Water", "Methanol", "Other"]
         )
         nanoparticle = st.selectbox(
             "Nanoparticle",
