@@ -90,7 +90,6 @@ if submitted:
 st.markdown("---")
 st.markdown("### 📞 Or contact us directly")
 st.markdown("""
-- 📧 **Email:** rezachash12@gmail.com
-- 🔗 **LinkedIn:** [Reza Chash](https://www.linkedin.com/in/reza-chash-9735ab141)
+- 📧 **Email:** dancarbon.tech.official@gmail.com
 - 🌐 **Platform:** https://dancarbon-techa-oceee8umnrb6ywynapwuzw.streamlit.app
 """)
