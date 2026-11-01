@@ -1,4 +1,4 @@
-Run,Comments,Factor 1 A:T k,Factor 2 B:P bar,Factor 3 C:X w%,Response 1 solubility v/v
+Run,Comments,Factor 1 T k,Factor 2 P bar,Factor 3 X w%,Response 1 solubility v/v
 1,,304,10,0.05,8.9
 2,,297,10,0.1,8.917
 3,,297,17.5,0.05,20.52
