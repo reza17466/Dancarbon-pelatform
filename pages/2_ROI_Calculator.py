@@ -401,7 +401,6 @@ st.markdown("""
 
 7. **Danish grid emission factor** — Energinet (2024). *Miljødeklaration for el.*
 
-8. **DanCarbon experimental model** — Reza Chash (2016), MSc thesis, Mahshahr University.
 """)
 
 st.caption(
