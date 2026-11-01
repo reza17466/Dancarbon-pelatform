@@ -264,5 +264,5 @@ else:
     st.caption(
         f"DanCarbon Tech Platform — MVP v0.3 | "
         f"© {datetime.now().year} DanCarbon Tech ApS | "
-        f"rezachash12@gmail.com"
+        f"dancarbon.tech.official.com"
     )
