@@ -93,8 +93,8 @@ def send_accepted_email(to_email, title, description, score):
         cleaner future for industrial gas separation.
     </p>
     <p>Best regards,<br>
-    <b>Reza Chash</b><br>
-    Founder & CEO, DanCarbon Tech</p>
+    <b>dancarbon</b><br>
+    co-Founder & CEO, DanCarbon Tech</p>
     """
     return _send(to_email, subject, _base_template("Accepted", "#28A745", body))
 
@@ -128,8 +128,8 @@ def send_review_email(to_email, title, score):
         <li>References (thesis, journal, DOI)</li>
     </ul>
     <p>Best regards,<br>
-    <b>Reza Chash</b><br>
-    Founder & CEO, DanCarbon Tech</p>
+    <b>dancarbon</b><br>
+    co-Founder & CEO, DanCarbon Tech</p>
     """
     return _send(to_email, subject, _base_template("Under Review", "#FFA500", body))
 
@@ -175,7 +175,7 @@ def send_rejected_email(to_email, title, score, reason=None):
     questions, feel free to reply to this email.
     </p>
     <p>Best regards,<br>
-    <b>Reza Chash</b><br>
-    Founder & CEO, DanCarbon Tech</p>
+    <b>dancarbon</b><br>
+    co-Founder & CEO, DanCarbon Tech</p>
     """
     return _send(to_email, subject, _base_template("Not Accepted", "#DC3545", body))
